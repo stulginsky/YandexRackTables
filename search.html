@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Global search results</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a class="crumbTag" href="./main.html">Main page</a>
+        <span class="crumbSep">›</span>
+        <span class="crumbLabel" aria-current="page" id="searchCrumb">search results</span>
+      </nav>
+      <div class="search">
+        <input id="globalSearch" type="search" placeholder="Search…" autocomplete="off" />
+      </div>
+    </header>
+
+    <main class="searchLayout">
+      <h1 class="searchTitle" id="searchTitle"></h1>
+
+      <section class="searchSection" id="objectsSection" aria-label="Objects results">
+        <h2 class="searchSectionTitle">Objects</h2>
+        <div class="searchTable">
+          <div class="searchTableHead">
+            <div>what</div>
+            <div>why</div>
+          </div>
+          <div class="searchTableBody" id="objectsResults"></div>
+        </div>
+      </section>
+
+      <section class="searchSection" id="ipv4Section" aria-label="IPv4 networks results">
+        <h2 class="searchSectionTitle">IPv4 networks</h2>
+        <div class="searchCards" id="ipv4Results"></div>
+      </section>
+
+      <section class="searchSection" id="locationsSection" aria-label="Locations results">
+        <h2 class="searchSectionTitle">Locations</h2>
+        <div class="searchCards" id="locationsResults"></div>
+      </section>
+    </main>
+
+    <script src="./search.js"></script>
+  </body>
+</html>
+

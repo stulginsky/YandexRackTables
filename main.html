@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RackTables-like main prototype</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <button class="crumbTag isCurrent" type="button">Main page</button>
+      </nav>
+      <div class="search">
+        <input id="globalSearch" type="search" placeholder="Search…" autocomplete="off" />
+      </div>
+    </header>
+
+    <main class="mainLayout">
+      <section class="mainTiles" aria-label="Main sections">
+        <a class="tile" href="./index.html">
+          <div class="tileTitle">Objects</div>
+          <div class="tileArt tileArtServer" aria-hidden="true"></div>
+        </a>
+      </section>
+    </main>
+
+    <script src="./main.js"></script>
+  </body>
+</html>

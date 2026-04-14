@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RackTables-like table prototype</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a class="crumbTag" href="./main.html">Main page</a>
+        <span class="crumbSep">›</span>
+        <button class="crumbTag isCurrent" type="button" id="objectsScopeCrumb" aria-current="page" aria-pressed="true" title="Toggle Objects scope">
+          Objects
+        </button>
+      </nav>
+      <div class="search">
+        <input id="globalSearch" type="search" placeholder="Search…" autocomplete="off" />
+      </div>
+    </header>
+
+    <main class="layout">
+      <div class="pageHeader">
+        <div class="tabs">
+          <button class="tab active" type="button">Browse</button>
+          <button class="tab" type="button" disabled>Add more</button>
+        </div>
+
+        <h1 class="title">Objects <span class="muted" id="objectsCount">(0)</span></h1>
+      </div>
+      <section class="content">
+        <div class="panel">
+          <div class="toolbar">
+            <div class="filter">
+              <label for="columnSelect"><strong>Filter</strong></label>
+              <select id="columnSelect"></select>
+              <input id="columnFilter" type="search" placeholder="value contains…" autocomplete="off" />
+              <select id="incidentFilter" style="display: none">
+                <option value="">any</option>
+                <option value="true">true</option>
+                <option value="false">false</option>
+              </select>
+              <button id="clearFilter" type="button">Clear</button>
+            </div>
+            <div class="sortHint muted" id="sortHint">Click a column header to sort</div>
+          </div>
+
+          <div class="tableWrap">
+            <table class="rtTable" id="objectsTable">
+              <thead>
+                <tr id="headerRow"></tr>
+                <tr id="quickFilterRow" class="quickFilters"></tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="footer">
+            <div class="muted" id="statusLine"></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <div class="box">
+          <div class="boxTitle">Column filter</div>
+          <div class="filter sidebarFilter">
+            <!--<label for="sidebarColumnSelect"><strong>Filter</strong></label>-->
+            <select id="sidebarColumnSelect"></select>
+            <input id="sidebarColumnFilter" type="search" placeholder="value contains…" autocomplete="off" />
+            <select id="sidebarIncidentFilter" style="display: none">
+              <option value="">any</option>
+              <option value="true">true</option>
+              <option value="false">false</option>
+            </select>
+            <button id="sidebarClearFilter" type="button">Clear</button>
+          </div>
+          <div class="muted small" id="sidebarSortHint" style="margin-top: 8px"></div>
+        </div>
+        <div class="box">
+          <div class="boxTitle">Tag filters</div>
+          <div class="tagFilters">
+            <label><input type="radio" name="tagMode" value="and" checked /> and</label>
+            <label><input type="radio" name="tagMode" value="or" /> or</label>
+            <hr />
+            <label><input type="checkbox" class="tag" value="load balancer" /> load balancer (2)</label>
+            <label><input type="checkbox" class="tag" value="medium network" /> medium network (3)</label>
+            <label><input type="checkbox" class="tag" value="production" /> production (8)</label>
+            <label><input type="checkbox" class="tag" value="testing" /> testing (2)</label>
+          </div>
+          <div class="muted small" style="margin-top: 8px">(no predicates to show)</div>
+        </div>
+      </aside>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
