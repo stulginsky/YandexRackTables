@@ -298,11 +298,31 @@ body{
   overflow:auto;
   flex:1;
   min-height:0;
+  position:relative;
+}
+.tableStickyBg{
+  position:sticky;
+  top:0;
+  z-index:1;
+  height:calc(var(--table-head-height) + var(--table-filter-height));
+  margin-bottom:calc((var(--table-head-height) + var(--table-filter-height)) * -1);
+  background:linear-gradient(
+    to bottom,
+    var(--header-bg) 0,
+    var(--header-bg) var(--table-head-height),
+    #fff var(--table-head-height),
+    #fff calc(var(--table-head-height) + var(--table-filter-height))
+  );
+  border-top:1px solid #d1d1d1;
+  border-bottom:1px solid #d1d1d1;
+  pointer-events:none;
 }
 .rtTable{
   width:100%;
   border-collapse:collapse;
   min-width:820px;
+  position:relative;
+  z-index:2;
 }
 .rtTable th,.rtTable td{
   border:1px solid #d1d1d1;
@@ -325,12 +345,10 @@ body{
 }
 .rtTable thead tr:first-child th{
   top:0;
-  box-shadow:0 1px 0 #d1d1d1;
 }
 .rtTable thead tr.quickFilters th{
   top:var(--table-head-height);
   z-index:2;
-  box-shadow:0 -1px 0 #d1d1d1;
   height:var(--table-filter-height);
   min-height:var(--table-filter-height);
 }
