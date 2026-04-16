@@ -105,6 +105,87 @@
           <div class="muted small" style="margin-top: 8px">(no predicates to show)</div>
         </div>
       </aside>
+
+      <aside class="objectDrawer" id="objectDrawer" aria-hidden="true">
+        <div class="drawerShell">
+          <div class="drawerActions">
+            <button class="drawerIconButton" id="drawerCloseButton" type="button" aria-label="Close object card">×</button>
+            <button class="drawerIconButton" id="drawerOpenButton" type="button" aria-label="Open object in new window">↗</button>
+          </div>
+
+          <div class="drawerContent" id="drawerContent">
+            <h2 class="drawerTitle" id="drawerTitle">Object card</h2>
+
+            <section class="drawerSection">
+              <h3 class="drawerSectionTitle">Troubleshooting Overview</h3>
+              <div class="drawerStack">
+                <div class="drawerAlertRow" id="drawerAlertBox">
+                  <div class="drawerAlertLabel">Alert target</div>
+                  <div class="drawerAlertValue" id="drawerAlertValue">No object selected</div>
+                </div>
+
+                <div class="drawerAlertRow" id="drawerNatBox">
+                  <div class="drawerAlertLabel">NAT translates to</div>
+                  <div class="drawerAlertValue" id="drawerNatValue">No NAT data yet</div>
+                </div>
+
+                <div class="drawerInfoCard">
+                  <div class="drawerInfoTitle">Network path</div>
+                  <div class="drawerInfoText" id="drawerNetworkPath">Select an object to inspect its related path and peers.</div>
+                </div>
+
+                <div class="drawerSplit">
+                  <div class="drawerInfoCard">
+                    <div class="drawerInfoTitle">Interface &amp; link</div>
+                    <div class="drawerInfoText" id="drawerInterfaceText">No link data yet.</div>
+                  </div>
+                  <div class="drawerInfoCard">
+                    <div class="drawerInfoTitle">Peer connections</div>
+                    <div class="drawerList" id="drawerPeerList"></div>
+                  </div>
+                </div>
+
+                <div class="drawerInfoCard">
+                  <div class="drawerInfoTitle">Rack location</div>
+                  <div class="drawerInfoText" id="drawerRackLocation">No rack location selected.</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="drawerSection">
+              <h3 class="drawerSectionTitle">Hardware and Rack Info</h3>
+              <div class="drawerHardware">
+                <div class="drawerKeyValue">
+                  <div class="drawerKey">Host label</div>
+                  <div class="drawerValue" id="drawerHostLabel">-</div>
+                </div>
+                <div class="drawerKeyValue">
+                  <div class="drawerKey">Common name</div>
+                  <div class="drawerValue" id="drawerCommonName">-</div>
+                </div>
+                <div class="drawerKeyValue">
+                  <div class="drawerKey">Object type</div>
+                  <div class="drawerValue" id="drawerObjectType">-</div>
+                </div>
+                <div class="drawerKeyValue">
+                  <div class="drawerKey">Visible label</div>
+                  <div class="drawerValue" id="drawerVisibleLabel">-</div>
+                </div>
+                <div class="drawerKeyValue">
+                  <div class="drawerKey">Asset tag</div>
+                  <div class="drawerValue" id="drawerAssetTag">-</div>
+                </div>
+              </div>
+
+              <div class="drawerRackPanel">
+                <div class="drawerInfoTitle">Rack Allocation</div>
+                <div class="drawerRackSummary" id="drawerRackSummary">-</div>
+                <div class="rackMiniGrid" id="drawerRackGrid" aria-hidden="true"></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </aside>
     </main>
 
     <script src="./app.js"></script>

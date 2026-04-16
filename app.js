@@ -130,6 +130,7 @@ const state = {
   searchScopeEnabled: true,
   quickFilters: /** @type {Record<string,string>} */ (Object.create(null)),
   tags: { mode: "and", selected: /** @type {Set<string>} */ (new Set()) },
+  selectedRowId: /** @type {string|null} */ (null),
 };
 
 function normalize(str) {
@@ -212,6 +213,168 @@ function el(id) {
   const node = document.getElementById(id);
   if (!node) throw new Error(`Missing element #${id}`);
   return node;
+}
+
+function getRowById(id) {
+  return DATA.find((row) => row.id === id) || null;
+}
+
+function isIncidentRow(row) {
+  return INCIDENT_IDS.has(row.id);
+}
+
+function makeHostLabel(row) {
+  if (row.visibleLabel) return row.visibleLabel;
+  return normalize(row.commonName).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || row.id;
+}
+
+function makeInterfaceLabel(row) {
+  const type = normalize(row.type);
+  if (type.includes("server")) return "eth0";
+  if (type.includes("switch")) return "xe-0/0/1";
+  if (type.includes("router")) return "ge-0/0/0";
+  if (type.includes("firewall")) return "port1";
+  if (type.includes("pdu")) return "feed-a";
+  return "port-1";
+}
+
+function makePeerConnections(row) {
+  const peers = [];
+  if (row.location) peers.push(`${row.location} gateway`);
+  if (row.tags?.includes("production")) peers.push("production aggregation");
+  if (row.tags?.includes("testing")) peers.push("testing segment");
+  if (row.tags?.includes("medium network")) peers.push("medium network core");
+  if (row.tags?.includes("load balancer")) peers.push("load balancer tier");
+  if (row.assetTag) peers.push(row.assetTag);
+  return peers.slice(0, 4);
+}
+
+function makeNetworkPath(row) {
+  const parts = [
+    row.location || "Unknown rack",
+    row.type || "Object",
+    row.tags?.length ? row.tags.join(" / ") : "general segment",
+  ];
+  return parts.join(" -> ");
+}
+
+function makeObjectIp(row) {
+  const numericId = Number(row.id.replace(/\D+/g, "")) || 1;
+  const thirdOctet = 10 + (numericId % 20);
+  const fourthOctet = 10 + (numericId % 200);
+  return `10.200.${thirdOctet}.${fourthOctet}`;
+}
+
+function makeAlertTarget(row) {
+  if (isIncidentRow(row)) return `${makeObjectIp(row)}:80`;
+  return "No active alerts";
+}
+
+function makeNatTranslation(row) {
+  const targetIp = makeObjectIp(row);
+  const numericId = Number(row.id.replace(/\D+/g, "")) || 1;
+  const translatedPort = 8000 + (numericId % 1000);
+  if (isIncidentRow(row)) return `${targetIp}:${translatedPort} ${makeInterfaceLabel(row)}`;
+  return `${targetIp}:${translatedPort} ${makeInterfaceLabel(row)}`;
+}
+
+function renderDrawerRackGrid(row) {
+  const host = document.getElementById("drawerRackGrid");
+  if (!host) return;
+  host.textContent = "";
+  const baseUnit = (row.commonName.length % 16) + 10;
+  for (let unit = 24; unit >= 9; unit--) {
+    const cell = document.createElement("div");
+    cell.className = "rackMiniUnit";
+    const unitLabel = document.createElement("span");
+    unitLabel.className = "rackMiniUnitLabel";
+    unitLabel.textContent = String(unit);
+    cell.appendChild(unitLabel);
+
+    if (unit >= baseUnit && unit < baseUnit + 2) {
+      cell.classList.add("isActive");
+      const objectLabel = document.createElement("span");
+      objectLabel.className = "rackMiniObjectLabel";
+      objectLabel.textContent = row.commonName;
+      cell.appendChild(objectLabel);
+    }
+
+    host.appendChild(cell);
+  }
+}
+
+function syncDrawerSelection() {
+  for (const rowEl of document.querySelectorAll("#tbody tr")) {
+    rowEl.classList.toggle("isSelected", rowEl.dataset.id === state.selectedRowId);
+  }
+}
+
+function closeDrawer() {
+  state.selectedRowId = null;
+  const drawer = document.getElementById("objectDrawer");
+  if (drawer) {
+    drawer.classList.remove("isOpen");
+    drawer.setAttribute("aria-hidden", "true");
+  }
+  syncDrawerSelection();
+}
+
+function openDrawerForRow(row) {
+  state.selectedRowId = row.id;
+  const drawer = el("objectDrawer");
+  const hasIncident = isIncidentRow(row);
+  el("drawerTitle").textContent = row.commonName;
+  el("drawerAlertBox").className = `drawerAlertRow ${hasIncident ? "isIncident" : "isOk"}`;
+  el("drawerNatBox").className = `drawerAlertRow ${hasIncident ? "isIncident" : "isOk"}`;
+  el("drawerAlertValue").textContent = makeAlertTarget(row);
+  el("drawerNatValue").textContent = makeNatTranslation(row);
+  el("drawerNetworkPath").textContent = makeNetworkPath(row);
+  el("drawerInterfaceText").textContent = `${makeInterfaceLabel(row)} -> ${row.type || "object"} link`;
+
+  const peerList = el("drawerPeerList");
+  peerList.textContent = "";
+  const peers = makePeerConnections(row);
+  if (!peers.length) {
+    const empty = document.createElement("div");
+    empty.className = "drawerListItem";
+    empty.textContent = "No peer details available";
+    peerList.appendChild(empty);
+  } else {
+    for (const peer of peers) {
+      const item = document.createElement("div");
+      item.className = "drawerListItem";
+      item.textContent = peer;
+      peerList.appendChild(item);
+    }
+  }
+
+  el("drawerRackLocation").textContent = row.location || "Unknown rack location";
+  el("drawerHostLabel").textContent = makeHostLabel(row);
+  el("drawerCommonName").textContent = row.commonName || "-";
+  el("drawerObjectType").textContent = row.type || "-";
+  el("drawerVisibleLabel").textContent = row.visibleLabel || "-";
+  el("drawerAssetTag").textContent = row.assetTag || "-";
+  el("drawerRackSummary").textContent = row.location || "-";
+  renderDrawerRackGrid(row);
+
+  drawer.classList.add("isOpen");
+  drawer.setAttribute("aria-hidden", "false");
+  syncDrawerSelection();
+}
+
+function toggleDrawer(row) {
+  if (state.selectedRowId === row.id) {
+    closeDrawer();
+    return;
+  }
+  openDrawerForRow(row);
+}
+
+function openSelectedObjectInNewWindow() {
+  if (!state.selectedRowId) return;
+  const next = new URL(window.location.href);
+  next.searchParams.set("object", state.selectedRowId);
+  window.open(next.toString(), "_blank", "noopener");
 }
 
 function renderHeader() {
@@ -306,7 +469,17 @@ function renderBody(rows) {
 
   for (const row of rows) {
     const tr = document.createElement("tr");
+    tr.dataset.id = row.id;
+    tr.tabIndex = 0;
+    tr.classList.add("tableRowInteractive");
     if (INCIDENT_IDS.has(row.id)) tr.classList.add("rowHighlight");
+    if (state.selectedRowId === row.id) tr.classList.add("isSelected");
+    tr.addEventListener("click", () => toggleDrawer(row));
+    tr.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      toggleDrawer(row);
+    });
 
     for (const col of COLUMNS) {
       const td = document.createElement("td");
@@ -485,6 +658,13 @@ function wireControls() {
       render();
     });
   }
+
+  el("drawerCloseButton").addEventListener("click", () => {
+    closeDrawer();
+  });
+  el("drawerOpenButton").addEventListener("click", () => {
+    openSelectedObjectInNewWindow();
+  });
 }
 
 function wireSidebarColumnFilterControls() {
@@ -572,6 +752,9 @@ function renderScopeCrumb() {
 function render() {
   const visible = getVisibleRows();
   const sorted = sortRows(visible);
+  if (state.selectedRowId && !sorted.some((row) => row.id === state.selectedRowId)) {
+    closeDrawer();
+  }
   renderSortMarks();
   renderBody(sorted);
   renderStatus(sorted);
@@ -581,7 +764,9 @@ function init() {
   // allow deep-links from main page search: index.html?q=...
   const qs = new URLSearchParams(window.location.search);
   const q = (qs.get("q") || "").trim();
+  const objectId = (qs.get("object") || "").trim();
   if (q) state.globalQuery = q;
+  if (objectId && getRowById(objectId)) state.selectedRowId = objectId;
 
   renderHeader();
   renderQuickFilters();
@@ -595,6 +780,10 @@ function init() {
   const globalSearch = document.getElementById("globalSearch");
   if (globalSearch) /** @type {HTMLInputElement} */ (globalSearch).value = state.globalQuery;
   render();
+  if (state.selectedRowId) {
+    const row = getRowById(state.selectedRowId);
+    if (row) openDrawerForRow(row);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", init);
